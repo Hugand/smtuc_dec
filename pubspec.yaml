@@ -45,6 +45,7 @@ flutter:
 
   assets:
     - assets/stopsList.json
+    - assets/main_bg.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

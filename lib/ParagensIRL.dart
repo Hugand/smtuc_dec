@@ -33,7 +33,7 @@ class _ParagensIRLState extends State<ParagensIRL> {
   MapStopInfo mapStopInfo;
 
   Completer<GoogleMapController> _controller = Completer();
-  static final CameraPosition _kGooglePlex = CameraPosition(
+  static final CameraPosition _coimbraPos = CameraPosition(
     target: LatLng(40.2011832, -8.4209922),
     zoom: 14.4746,
   );
@@ -93,7 +93,6 @@ class _ParagensIRLState extends State<ParagensIRL> {
           _stopBusData = stopCardInfoData["stopBusData"];
           _stopRoutes = stopCardInfoData["stopRoutes"];
         });
-        debugPrint("Clicked ${_stopInfoToDisplay['Code']} ${_stopBusData.length}");
 
       },
     );
@@ -146,7 +145,6 @@ class _ParagensIRLState extends State<ParagensIRL> {
 
       _markersLoaded = true;
     });
-    debugPrint(stopsList.toString());
   }
 
 
@@ -165,7 +163,7 @@ class _ParagensIRLState extends State<ParagensIRL> {
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
-              initialCameraPosition: _kGooglePlex,
+              initialCameraPosition: _coimbraPos,
               markers: Set<Marker>.of(stopsMarkers.values),
               onTap: _handleTap,
               myLocationButtonEnabled: false,
@@ -231,12 +229,10 @@ class _ParagensIRLState extends State<ParagensIRL> {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.search),
           onPressed: () {
-            debugPrint("HE");
             return Alert(
               context: context,
               title: "Raio de pesquisa",
               buttons: [DialogButton(child: Text("Search"), onPressed: (){
-                debugPrint(posSearchMarker.position.latitude.toString());
                 Navigator.pop(context);
                 getStopsListInRadius();
               },)],
@@ -270,7 +266,6 @@ class _ParagensIRLState extends State<ParagensIRL> {
                       setState(() {
                         _radiusDist = value;
                       });
-                      debugPrint(_radiusDist);
                     },
                     hint: Text("Seleciona uma distância"),
                     value: _radiusDist,

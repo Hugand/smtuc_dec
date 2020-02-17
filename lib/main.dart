@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'HorariosScreen.dart';
 import 'ParagensIRL.dart';
 
 void main() => runApp(MyApp());
@@ -27,38 +28,82 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RaisedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => new ParagensIRL()));
-              },
-              child: Text("Paragens em tempo real"),
-            )
-          ],
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/main_bg.png"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+        child: 
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.all(5),
+                child: 
+                  RawMaterialButton(
+                    fillColor: Colors.white,
+                    splashColor: Colors.orangeAccent[100],
+                    shape: StadiumBorder(),
+                    elevation: 0,
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => new ParagensIRL()));
+                    },
+                    child: 
+                      Container(
+                        padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                        child: 
+                          Text(
+                            "Paragens em tempo real",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                      )
+                  ),
+              ),
+              Container(
+                margin: EdgeInsets.all(5),
+                child: 
+                  RawMaterialButton(
+                    fillColor: Colors.white,
+                    splashColor: Colors.orangeAccent[100],
+                    shape: StadiumBorder(),
+                    elevation: 0,
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => new HorariosScreen()));
+                    },
+                    child: 
+                    Container(
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                      child: 
+                        Text(
+                          "Horários",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                    )
+                  ),
+              ),
+            ],
+          ),
+        )
+      )
     );
   }
 }

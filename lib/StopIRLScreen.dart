@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class StopsIRLScreen extends StatefulWidget{
@@ -8,34 +10,64 @@ class StopsIRLScreen extends StatefulWidget{
 
   const StopsIRLScreen({Key key, this.stopData}) : super(key: key);
   @override
-  _StopsIRLScreenState createState() => _StopsIRLScreenState(stopData);
+  _StopsIRLScreenState createState() => _StopsIRLScreenState();
 }
 
 class _StopsIRLScreenState extends State<StopsIRLScreen> {
 
-  final Map _stopData;
+  Map _stopData;
   List _irlData;
-  AppBar appBar = AppBar(
-        title: Text("Paragens em tempo real"),
-      );
+  // Map _stopCoords;
+  AppBar appBar;
   GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
-  _StopsIRLScreenState(this._stopData);
+  Completer<GoogleMapController> _controller = Completer();
+  CameraPosition _stopPos;
 
   Future<void> getBusList() async {
     var data = await http.post('http://coimbra.move-me.mobi/NextArrivals/GetScheds?providerName=${_stopData['stopProvider']}&stopCode=${_stopData['stopId']}');
     setState((){
       _irlData = json.decode(data.body);
     });
-    debugPrint(_irlData.toString());
+  }
+
+  Future<Map> getStopData(String stopId) async {
+    // List data = await json.decode(await DefaultAssetBundle.of(context).loadString("assets/stopsList.json")).toList();
+    var response = await http.get('http://coimbra.move-me.mobi/Stops/GetStops?oLat=40.2011832&oLon=-8.4209922&meters=50000');
+    List data = json.decode(response.body.toString()) as List;
+    Map resultData;
+    for(var i = 0; i < data.length; i++){
+      if(data[i]["Code"] == stopId){
+        resultData = data[i];
+        break;
+      }
+    }
+    return resultData;
   }
 
   @override
   void initState() {
     super.initState();
+    _stopData = widget.stopData;
+
+    appBar = AppBar(
+      title: Text("${_stopData['stopName']} - ${_stopData['stopId']}"),
+    );
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshIndicatorKey.currentState.show());
+
+    getStopData(_stopData["stopId"].toString()).then((stopCoords) {
+      setState(() {
+        _stopPos = CameraPosition(
+          target: LatLng(
+            double.parse(stopCoords["CoordX"].toString()),
+            double.parse(stopCoords["CoordY"].toString())),
+          zoom: 17,
+        );
+      });
+    });
     getBusList();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _refreshIndicatorKey.currentState.show());
+
   }
 
   @override
@@ -44,9 +76,25 @@ class _StopsIRLScreenState extends State<StopsIRLScreen> {
       appBar: appBar,
       body: (_irlData == null) 
       ? Center(child: CircularProgressIndicator())
-      : 
-          Column(
+      : Column(
           children: <Widget>[
+            SizedBox(height: MediaQuery.of(context).size.height/3,
+              child:
+              (_stopPos == null)
+              ? Center(child: CircularProgressIndicator(),)
+              : GoogleMap(
+                  mapType: MapType.normal,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                  initialCameraPosition: _stopPos,
+                  markers: Set<Marker>.of({"stopId": Marker(
+                    markerId: MarkerId('stopId'),
+                    position: _stopPos.target,
+                  )}.values),
+                  myLocationButtonEnabled: false,
+                ),
+            ),
             Container(
               padding: EdgeInsets.all(10),
               color: Colors.green,
